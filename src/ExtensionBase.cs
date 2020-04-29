@@ -1,10 +1,14 @@
 using Landis.Utilities;
 using Landis.Core;
+using Landis.SpatialModeling;
 
 using log4net;
 using System;
 using System.Collections.Generic;
-using Landis.SpatialModeling;
+using System.Diagnostics;
+using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace Landis.Library.Succession
 {
@@ -37,6 +41,7 @@ namespace Landis.Library.Succession
         public ExtensionBase(string name)
             : base(name)
         {
+            this.ThreadCount = 1;
             this.ShowProgress = true;
         }
 
@@ -52,6 +57,19 @@ namespace Landis.Library.Succession
             {
                 return SiteVars.Disturbed;
             }
+        }
+
+        //---------------------------------------------------------------------
+
+        /// <summary>
+        /// Number of threads that an extension has been optimized to use to split up work.
+        /// This number will be set by the inheriting succession extension if it has been
+        /// optimized
+        /// </summary>
+        protected uint ThreadCount
+        {
+            get;
+            set;
         }
 
         //---------------------------------------------------------------------
@@ -176,15 +194,37 @@ namespace Landis.Library.Succession
                 progressBar = Model.Core.UI.CreateProgressMeter(Model.Core.Landscape.ActiveSiteCount); // NewProgressBar();
             }
 
-            foreach (ActiveSite site in sites)
+            if (this.ThreadCount > 1)
             {
-                ushort deltaTime = (ushort)(Model.Core.CurrentTime - SiteVars.TimeOfLast[site]);
-                AgeCohorts(site, deltaTime, succTimestep);
-                SiteVars.TimeOfLast[site] = Model.Core.CurrentTime;
+                //Thread worker = new Thread(() => AgeCohorts(site, deltaTime, succTimestep));
+                var sitesArray = sites.ToArray();
 
-                if (ShowProgress)
-                    Update(progressBar, site.DataIndex);
+                // Parallelize the calculations involved in ageing/growing cohorts to decrease process time
+                Parallel.For(0, sitesArray.Count(), new ParallelOptions {
+                    MaxDegreeOfParallelism = Math.Abs((int)this.ThreadCount) },
+                    i => 
+                    {
+                        ushort deltaTime = (ushort)(Model.Core.CurrentTime - SiteVars.TimeOfLast[sitesArray[i]]);
+                        AgeCohorts(sitesArray[i], deltaTime, succTimestep);
+                        SiteVars.TimeOfLast[sitesArray[i]] = Model.Core.CurrentTime;
+
+                        if (ShowProgress)
+                            Update(progressBar, sitesArray[i].DataIndex);
+                    });
             }
+            else
+            {
+                foreach (ActiveSite site in sites)
+                {
+                    ushort deltaTime = (ushort)(Model.Core.CurrentTime - SiteVars.TimeOfLast[site]);
+                    AgeCohorts(site, deltaTime, succTimestep);
+                    SiteVars.TimeOfLast[site] = Model.Core.CurrentTime;
+
+                    if (ShowProgress)
+                        Update(progressBar, site.DataIndex);
+                }
+            }
+
             if (ShowProgress)
                 CleanUp(progressBar);
         }
