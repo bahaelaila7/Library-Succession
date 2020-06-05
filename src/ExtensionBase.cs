@@ -177,6 +177,7 @@ namespace Landis.Library.Succession
                                bool isSuccessionTimestep)
         {
             int? succTimestep = null;
+            Stopwatch watch = new Stopwatch();
             if (isSuccessionTimestep)
             {
                 succTimestep = Timestep;
@@ -194,6 +195,7 @@ namespace Landis.Library.Succession
                 prevSiteDataIndex = null;
                 progressBar = Model.Core.UI.CreateProgressMeter(Model.Core.Landscape.ActiveSiteCount); // NewProgressBar();
             }
+            watch.Start();
 
             if (this.ThreadCount > 1)
             {
@@ -228,6 +230,11 @@ namespace Landis.Library.Succession
                         Update(progressBar, site.DataIndex);
                 }
             }
+
+            watch.Stop();
+            this.totalTime += watch.Elapsed.TotalSeconds;
+            this.runs += 1;
+            watch.Reset();
 
             if (ShowProgress)
                 CleanUp(progressBar);
