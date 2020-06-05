@@ -21,6 +21,7 @@ namespace Landis.Library.Succession
         private DisturbedSiteEnumerator disturbedSites;
         public bool ShowProgress;
         private uint? prevSiteDataIndex;
+        private static readonly object threadLock = new object();
 
         //---------------------------------------------------------------------
 
@@ -208,8 +209,11 @@ namespace Landis.Library.Succession
                         AgeCohorts(sitesArray[i], deltaTime, succTimestep);
                         SiteVars.TimeOfLast[sitesArray[i]] = Model.Core.CurrentTime;
 
-                        if (ShowProgress)
-                            Update(progressBar, sitesArray[i].DataIndex);
+                        lock (threadLock)
+                        {
+                            if (ShowProgress)
+                                Update(progressBar, sitesArray[i].DataIndex);
+                        }   
                     });
             }
             else
