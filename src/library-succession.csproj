@@ -6,7 +6,7 @@
     <AssemblyCompany>LANDIS-II Foundation</AssemblyCompany>
     <AssemblyProduct>Landis.Library.Succession-v8</AssemblyProduct>
     <AssemblyCopyright>LANDIS-II Foundation</AssemblyCopyright>        
-    <AssemblyVersion>8.0</AssemblyVersion>
+    <AssemblyVersion>8.1</AssemblyVersion>
     <AssemblyDescription>Input Parameters Library for LANDIS-II</AssemblyDescription>
     <TargetFramework>netstandard2.0</TargetFramework>
     <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
@@ -18,11 +18,11 @@
     <Authors>LANDIS-II Foundation</Authors>
     <Product>Succession Library</Product>
     <Copyright>LANDIS-II Foundation</Copyright>
-    <Version>8.0</Version>
+    <Version>8.1</Version>
     <PackageTags>LANDIS-II;Landis;Library;Succession</PackageTags>
     <Description>Succession Library for LANDIS-II</Description>
     <PackageReleaseNotes>.NET Standard 2.0 update.</PackageReleaseNotes>
-    <FileVersion>8.0</FileVersion>
+    <FileVersion>8.1</FileVersion>
     <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
   </PropertyGroup>
 
@@ -38,13 +38,13 @@
   <ItemGroup>
     <PackageReference Include="Landis.Core" Version="2.0.0" />
   </ItemGroup>
-  
+
   <ItemGroup>
     <Reference Include="Landis.Library.AgeOnlyCohorts-v3">
-      <HintPath>..\..\Support-Library-Dlls-v7\Landis.Library.AgeOnlyCohorts-v3.dll</HintPath>
+      <HintPath>..\..\..\Support-Library-Dlls-v7\Landis.Library.AgeOnlyCohorts-v3.dll</HintPath>
     </Reference>
     <Reference Include="Landis.Library.Cohorts-v2">
-      <HintPath>..\..\Support-Library-Dlls-v7\Landis.Library.Cohorts-v2.dll</HintPath>
+      <HintPath>..\..\..\Support-Library-Dlls-v7\Landis.Library.Cohorts-v2.dll</HintPath>
     </Reference>
   </ItemGroup>
   

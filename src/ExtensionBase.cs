@@ -67,7 +67,7 @@ namespace Landis.Library.Succession
         /// This number will be set by the inheriting succession extension if it has been
         /// optimized
         /// </summary>
-        protected uint ThreadCount
+        protected int ThreadCount
         {
             get;
             set;
@@ -197,15 +197,17 @@ namespace Landis.Library.Succession
             }
             watch.Start();
 
-            if (this.ThreadCount > 1)
+            if (this.ThreadCount != 1)
             {
                 //Thread worker = new Thread(() => AgeCohorts(site, deltaTime, succTimestep));
-                var sitesArray = sites.ToArray();
+                var sitesArray = sites.ToArray(); 
 
                 // Parallelize the calculations involved in ageing/growing cohorts to decrease process time
-                Parallel.For(0, sitesArray.Count(), new ParallelOptions {
-                    MaxDegreeOfParallelism = Math.Abs((int)this.ThreadCount) },
-                    i => 
+                Parallel.For(0, sitesArray.Count(), new ParallelOptions
+                {
+                    MaxDegreeOfParallelism = this.ThreadCount
+                },
+                    i =>
                     {
                         ushort deltaTime = (ushort)(Model.Core.CurrentTime - SiteVars.TimeOfLast[sitesArray[i]]);
                         AgeCohorts(sitesArray[i], deltaTime, succTimestep);
@@ -215,8 +217,9 @@ namespace Landis.Library.Succession
                         {
                             if (ShowProgress)
                                 Update(progressBar, sitesArray[i].DataIndex);
-                        }   
+                        }
                     });
+                
             }
             else
             {
@@ -232,8 +235,8 @@ namespace Landis.Library.Succession
             }
 
             watch.Stop();
-            this.totalTime += watch.Elapsed.TotalSeconds;
-            this.runs += 1;
+            //this.totalTime += watch.Elapsed.TotalSeconds;
+            //this.runs += 1;
             watch.Reset();
 
             if (ShowProgress)
