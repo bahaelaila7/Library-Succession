@@ -69,7 +69,7 @@ namespace Landis.Library.Succession
             /// <summary>
             /// A method for determining the seeds produced at a site for a given species using the Density Succession method.
             /// </summary>
-            public delegate double DensitySeeds(ISpecies species, ActiveSite site);
+            public delegate int DensitySeeds(ISpecies species, ActiveSite site);
 
 
         }

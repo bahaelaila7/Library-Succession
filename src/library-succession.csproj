@@ -27,8 +27,8 @@
   </PropertyGroup>
   
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
-    <OutputPath>C:\BRM\LANDIS_II\GitCode\brmiranda\Core-Model-v7\Tool-Console\src\bin\extensions</OutputPath>
-    <!--<OutputPath>bin\Debug\</OutputPath>-->
+    <OutputPath>C:\Users\jacobfraser\source\repos\Core-Model-v7\Tool-Console\src\bin\extensions</OutputPath>
+    <!--<OutputPath>C:\BRM\LANDIS_II\GitCode\brmiranda\Core-Model-v7\Tool-Console\src\bin\extensions</OutputPath>-->
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
@@ -36,8 +36,11 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="Accord" Version="3.8.0" />
+    <PackageReference Include="Accord.Statistics" Version="3.8.0" />
     <PackageReference Include="Landis.Core" Version="2.0.0" />
     <PackageReference Include="Landis.Utilities" Version="2.0.0" />
+    <PackageReference Include="MathNet.Numerics" Version="4.15.0" />
   </ItemGroup>
   
   <ItemGroup>
@@ -48,7 +51,7 @@
       <HintPath>..\..\Support-Library-Dlls-v7\Landis.Library.Cohorts-v2.dll</HintPath>
     </Reference>
     <Reference Include="Seed_Dispersal">
-      <HintPath>..\..\brmiranda\Core-Model-v7\Tool-Console\src\bin\extensions\Seed_Dispersal.dll</HintPath>
+      <HintPath>C:\Users\jacobfraser\source\repos\Core-Model-v7\Tool-Console\src\bin\extensions\Seed_Dispersal.dll</HintPath>
     </Reference>
   </ItemGroup>
   

@@ -24,6 +24,8 @@ namespace Landis.Library.Succession
                 return SeedingAlgorithms.WardSeedDispersal;
             else if (word == "DemographicSeeding")
                 return SeedingAlgorithms.DemographicSeeding;
+            else if (word == "DensitySeeding")
+                return SeedingAlgorithms.DensitySeeding;
             throw new System.FormatException("Valid algorithms: NoDispersal, UniversalDispersal, WardSeedDispersal, DemographicSeeding");
         }
 
@@ -65,6 +67,11 @@ namespace Landis.Library.Succession
 
                 case SeedingAlgorithms.DemographicSeeding:
                     algorithm = new DemographicSeeding.Algorithm(successionTimestep).DoesSpeciesSeedSite;
+                    break;
+
+                case SeedingAlgorithms.DensitySeeding:
+                    //algorithm = new DensitySeeding.Algorithm(successionTimestep);
+                    algorithm = new DensitySeeding.Algorithm(successionTimestep).DoesSpeciesSeedSite;
                     break;
 
                 default:

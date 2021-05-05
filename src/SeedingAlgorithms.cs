@@ -8,6 +8,7 @@ namespace Landis.Library.Succession
         NoDispersal = 0,
         UniversalDispersal,
         WardSeedDispersal,
-        DemographicSeeding
+        DemographicSeeding,
+        DensitySeeding
     }
 }
