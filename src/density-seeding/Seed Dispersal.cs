@@ -215,32 +215,35 @@ namespace Landis.Library.Succession.DensitySeeding
             int totalSeeds = seedProduction[s][x][y];
             int sumofDispersal = 0;
 
-            for (int i = -offset; i <= offset; i++)
+            if (totalSeeds > 0)
             {
-                int spread_row = y + i;
 
-                if (spread_row < 0 || spread_row >= map_width_pixels)
-                    continue;
-
-                int prob4square_row_id = i + offset;
-
-                for (int j = -offset; j <= offset; j++)
+                for (int i = -offset; i <= offset; i++)
                 {
-                    int spread_col = x + j;
+                    int spread_row = y + i;
 
-                    if (spread_col < 0 || spread_col >= map_height_pixels)
+                    if (spread_row < 0 || spread_row >= map_width_pixels)
                         continue;
 
-                    int prob4square_col_id = j + offset;
+                    int prob4square_row_id = i + offset;
 
-                    var binomial_distribution = new BinomialDistribution(totalSeeds, prob4square[s][prob4square_row_id][prob4square_col_id]);
-                    int number = (int)binomial_distribution.Generate(rand);
-                    seedDispersal[s][spread_row][spread_col] += number;
-                    sumofDispersal += number;
+                    for (int j = -offset; j <= offset; j++)
+                    {
+                        int spread_col = x + j;
+
+                        if (spread_col < 0 || spread_col >= map_height_pixels)
+                            continue;
+
+                        int prob4square_col_id = j + offset;
+
+                        var binomial_distribution = new BinomialDistribution(totalSeeds, prob4square[s][prob4square_row_id][prob4square_col_id]);
+                        int number = (int)binomial_distribution.Generate(rand);
+                        seedDispersal[s][spread_row][spread_col] += number;
+                        sumofDispersal += number;
+                    }
                 }
             }
-
-            seedDispersal[s][x][y] = Math.Max((totalSeeds - sumofDispersal), 0);
+            //seedDispersal[s][x][y] = Math.Max((totalSeeds - sumofDispersal), 0);
 
         }
 

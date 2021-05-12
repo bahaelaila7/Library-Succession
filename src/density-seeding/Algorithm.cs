@@ -141,7 +141,104 @@ namespace Landis.Library.Succession.DensitySeeding
                     }
                 }
             }
+
+            // Debug output maps
+            WriteSpeciesMaps();
         }
 
+
+        private void WriteSpeciesMaps()
+        {
+            foreach (ISpecies species in Model.Core.Species)
+            {
+                string treepath = MakeSpeciesSeednumberMapName(species.Name);
+                int s = species.Index;
+                Model.Core.UI.WriteLine("   Writing {0} maps ...", species.Name);
+
+                using (IOutputRaster<IntPixel> outputRaster = Model.Core.CreateRaster<IntPixel>(treepath, Model.Core.Landscape.Dimensions))
+                {
+                    IntPixel pixel = outputRaster.BufferPixel;
+                    foreach (Site site in Model.Core.Landscape.AllSites)
+                    {
+                        int x = site.Location.Column - 1;
+                        int y = site.Location.Row - 1;
+
+                        if (site.IsActive)
+                            pixel.MapCode.Value = seedingData.seedDispersal[s][x][y];
+                        else
+                            pixel.MapCode.Value = 0;
+
+                        outputRaster.WriteBufferPixel();
+                    }
+                }
+
+            }
+
+        }
+
+        //---------------------------------------------------------------------
+
+        private string MakeSpeciesSeednumberMapName(string species)
+        {
+            string mapName = "outputs/density/{species}-SeedNumber-{timestep}.img";
+            return SpeciesMapNames.ReplaceTemplateVars(mapName,
+                                                       species,
+                                                       Model.Core.CurrentTime);
+        }
+
+
+        //---------------------------------------------------------------------
+
+
+        //---------------------------------------------------------------------
+        public static class SpeciesMapNames
+        {
+            public const string SpeciesVar = "species";
+            public const string TimestepVar = "timestep";
+
+            private static IDictionary<string, bool> knownVars;
+            private static IDictionary<string, string> varValues;
+
+            //---------------------------------------------------------------------
+
+            static SpeciesMapNames()
+            {
+                knownVars = new Dictionary<string, bool>();
+                knownVars[SpeciesVar] = true;
+                knownVars[TimestepVar] = true;
+
+                varValues = new Dictionary<string, string>();
+            }
+
+            //---------------------------------------------------------------------
+
+            public static void CheckTemplateVars(string template)
+            {
+                OutputPath.CheckTemplateVars(template, knownVars);
+            }
+
+            //---------------------------------------------------------------------
+
+            public static string ReplaceTemplateVars(string template,
+                                                     string species,
+                                                     int timestep)
+            {
+                varValues[SpeciesVar] = species;
+                varValues[TimestepVar] = timestep.ToString();
+                return OutputPath.ReplaceTemplateVars(template, varValues);
+            }
+        }
+
+        //---------------------------------------------------------------------
+
+        public class IntPixel : Pixel
+        {
+            public Band<int> MapCode = "The numeric code for each raster cell";
+
+            public IntPixel()
+            {
+                SetBands(MapCode);
+            }
+        }
     }
 }
