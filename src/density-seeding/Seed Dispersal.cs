@@ -1,14 +1,10 @@
 ﻿using System;
 using System.Diagnostics;
-using System.Collections;
+
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using Troschuetz.Random;
 using Landis.Core;
 using Landis.SpatialModeling;
 using Accord.Statistics.Distributions.Univariate;
-using MathNet.Numerics;
 using MathNet.Numerics.Integration;
 
 

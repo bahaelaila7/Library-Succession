@@ -24,6 +24,7 @@
     <PackageReleaseNotes>.NET Standard 2.0 update.</PackageReleaseNotes>
     <FileVersion>9.0</FileVersion>
     <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+	  <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
   </PropertyGroup>
   
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
@@ -32,11 +33,11 @@
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
-    <OutputPath>..\Deploy\</OutputPath>
+    <OutputPath>..\Deploy\release</OutputPath>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Accord" Version="3.8.0" />
+    <!--<PackageReference Include="Accord" Version="3.8.0" />-->
     <PackageReference Include="Accord.Statistics" Version="3.8.0" />
     <PackageReference Include="Landis.Core" Version="2.0.0" />
     <PackageReference Include="Landis.Utilities" Version="2.0.0" />

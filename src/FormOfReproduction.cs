@@ -1,5 +1,6 @@
 using Landis.Core;
 using System.Collections;
+using System.Collections.Generic;
 using Landis.SpatialModeling;
 
 namespace Landis.Library.Succession
@@ -23,6 +24,7 @@ namespace Landis.Library.Succession
         //---------------------------------------------------------------------
 
         private ISiteVar<BitArray> selectedSpecies;
+        private ISiteVar<Dictionary<ISpecies, uint>> plantingList;
 
         //---------------------------------------------------------------------
 
@@ -40,6 +42,19 @@ namespace Landis.Library.Succession
         //---------------------------------------------------------------------
 
         /// <summary>
+        /// The species that have been selected for planting
+        /// at each active site.
+        /// </summary>
+        protected ISiteVar<Dictionary<ISpecies, uint>> PlantingList
+        {
+            get
+            {
+                return plantingList;
+            }
+        }
+
+        //---------------------------------------------------------------------
+        /// <summary>
         /// By default, if a form of reproduciton succeeds at a site, it
         /// precludes trying any other forms that haven't been tried yet.
         /// </summary>
@@ -56,8 +71,10 @@ namespace Landis.Library.Succession
         {
             int speciesCount = speciesDataset.Count;
             selectedSpecies = Model.Core.Landscape.NewSiteVar<BitArray>();
+            plantingList = Model.Core.Landscape.NewSiteVar<Dictionary<ISpecies, uint>>();
             foreach (ActiveSite site in Model.Core.Landscape.ActiveSites) {
                 selectedSpecies[site] = new BitArray(speciesCount);
+                plantingList[site] = new Dictionary<ISpecies, uint>();
             }
         }
 
@@ -75,13 +92,14 @@ namespace Landis.Library.Succession
         {
             bool success = false;
             BitArray selectedSpeciesAtSite = selectedSpecies[site];
+            Dictionary<ISpecies, uint> plantingListAtSite = plantingList[site];
 
             for (int index = 0; index < speciesDataset.Count; ++index) {
                 if (selectedSpeciesAtSite.Get(index)) {
                     ISpecies species = speciesDataset[index];
                     if (PreconditionsSatisfied(species, site)) {
                         // Temp set propBiomass to 1.0
-                        Reproduction.AddNewCohort(species, site,"plant", 1.0);
+                        Reproduction.AddNewCohort(species, site,"plant", plantingListAtSite[species]);
                         success = true;
                     }
                 }
@@ -98,6 +116,7 @@ namespace Landis.Library.Succession
         protected void ClearSpeciesAt(ActiveSite site)
         {
             selectedSpecies[site].SetAll(false);
+            plantingList[site].Clear();
         }
 
         //---------------------------------------------------------------------

@@ -10,8 +10,7 @@ using Landis.Utilities;
 using System.Linq;
 using Landis.Utilities.Diagnostics;
 using System.Diagnostics;
-using MathNet.Numerics;
-using MathNet.Numerics.Integration;
+
 
 namespace Landis.Library.Succession.DensitySeeding
 {    
