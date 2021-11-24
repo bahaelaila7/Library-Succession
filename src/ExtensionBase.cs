@@ -216,7 +216,7 @@ namespace Landis.Library.Succession
                         lock (threadLock)
                         {
                             if (ShowProgress)
-                                Update(progressBar, sitesArray[i].DataIndex);
+                                Update(progressBar, sitesArray[i].DataIndex, true);
                         }
                     });
                 
@@ -348,11 +348,20 @@ namespace Landis.Library.Succession
         //---------------------------------------------------------------------
 
         private void Update(ProgressBar progressBar,
-                            uint currentSiteDataIndex)
+                            uint currentSiteDataIndex,
+                            bool parallel = false)
         {
-            uint increment = (uint)(prevSiteDataIndex.HasValue
+            uint increment = 0;
+            if (!parallel)
+            {
+                increment = (uint)(prevSiteDataIndex.HasValue
                                         ? (currentSiteDataIndex - prevSiteDataIndex.Value)
                                         : currentSiteDataIndex);
+            }
+            else
+            {
+                increment = 1;
+            }
             progressBar.IncrementWorkDone(increment);
             prevSiteDataIndex = currentSiteDataIndex;
         }
