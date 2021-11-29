@@ -97,6 +97,8 @@ namespace Landis.Library.Succession
         void IPlanting.Schedule(SpeciesList speciesList,
                                 ActiveSite  site)
         {
+            PlantingList[site].Clear();
+            SelectedSpecies[site].SetAll(false);
             SelectedSpecies[site].Or(speciesList.AsBitArray);
             if (speciesList.AsPlantDict != null)
             {
@@ -106,5 +108,6 @@ namespace Landis.Library.Succession
                 }
             }
         }
+
     }
 }

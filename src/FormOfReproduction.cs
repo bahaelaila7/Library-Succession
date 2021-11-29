@@ -32,7 +32,7 @@ namespace Landis.Library.Succession
         /// The species that have been selected for this form of reproduction
         /// at each active site.
         /// </summary>
-        protected ISiteVar<BitArray> SelectedSpecies
+        public ISiteVar<BitArray> SelectedSpecies
         {
             get {
                 return selectedSpecies;
@@ -45,7 +45,7 @@ namespace Landis.Library.Succession
         /// The species that have been selected for planting
         /// at each active site.
         /// </summary>
-        protected ISiteVar<Dictionary<ISpecies, uint>> PlantingList
+        public ISiteVar<Dictionary<ISpecies, uint>> PlantingList
         {
             get
             {
@@ -113,11 +113,12 @@ namespace Landis.Library.Succession
         /// <summary>
         /// Clears the list of selected species at a site.
         /// </summary>
-        protected void ClearSpeciesAt(ActiveSite site)
+        public void ClearSpeciesAt(ActiveSite site)
         {
             selectedSpecies[site].SetAll(false);
             plantingList[site].Clear();
         }
+
 
         //---------------------------------------------------------------------
 

@@ -448,8 +448,11 @@ namespace Landis.Library.Succession
             }
             resprout[site].SetAll(false);
 
+            planting.NotTriedAt(site);
             if (! plantingOccurred && ! serotinyOccurred && ! speciesResprouted)
                 seeding.Do(site);
+
+            
         }
 
 

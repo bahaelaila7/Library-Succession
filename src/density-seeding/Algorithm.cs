@@ -142,7 +142,7 @@ namespace Landis.Library.Succession.DensitySeeding
             }
 
             // Debug output maps
-            WriteSpeciesMaps();
+            //WriteSpeciesMaps();
         }
 
 
