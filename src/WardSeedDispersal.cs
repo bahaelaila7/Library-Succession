@@ -18,44 +18,56 @@ namespace Landis.Library.Succession
 
         //---------------------------------------------------------------------
 
-        public static bool Algorithm(ISpecies   species,
-                                     ActiveSite site)
+        public static void Algorithm(ISpecies species,
+                                        ActiveSite site, out bool established, out double seedlingProportion)
         {
+
+            established = false;
+            seedlingProportion = 1;
+
             // DEBUGGING
             //if (Reproduction.MaturePresent(species, site))
             //    Model.Core.UI.WriteLine("MaturePresent is true.");
             //
 
-            if (species.EffectiveSeedDist == Universal)
-                return UniversalDispersal.Algorithm(species, site);
 
-            if (! Reproduction.SufficientResources(species, site)) {
+            if (species.EffectiveSeedDist == Universal)
+            {
+                UniversalDispersal.Algorithm(species, site, out established, out seedlingProportion);
+            }
+
+            else if (! Reproduction.SufficientResources(species, site)) {
                 if (isDebugEnabled)
                     log.DebugFormat("site {0}: {1} not seeded: insufficient light",
                                     site.Location, species.Name);
-                return false;
+                established= false;
+             
             }
 
-            if (! Reproduction.Establish(species, site)) {
+            else if (! Reproduction.Establish(species, site)) {
                 if (isDebugEnabled)
                     log.DebugFormat("site {0}: {1} not seeded: cannot establish",
                                     site.Location, species.Name);
-                return false;
+                established = false;
             }
 
-            if (Reproduction.MaturePresent(species, site)) {
+            else if (Reproduction.MaturePresent(species, site))
+            {
                 if (isDebugEnabled)
                     log.DebugFormat("site {0}: {1} seeded on site",
                                     site.Location, species.Name);
-                return true;
+                established = true;
             }
 
-            if (isDebugEnabled)
-                log.DebugFormat("site {0}: search neighbors for {1}",
-                                site.Location, species.Name);
-
-            foreach (RelativeLocationWeighted reloc in Seeding.MaxSeedQuarterNeighborhood)
+            else
             {
+
+                if (isDebugEnabled)
+                    log.DebugFormat("site {0}: search neighbors for {1}",
+                                    site.Location, species.Name);
+
+                foreach (RelativeLocationWeighted reloc in Seeding.MaxSeedQuarterNeighborhood)
+
                 double distance = reloc.Weight;
                 int rRow = (int) reloc.Location.Row;
                 int rCol = (int) reloc.Location.Column;
@@ -91,14 +103,20 @@ namespace Landis.Library.Succession
                 //    Model.Core.UI.WriteLine("MaturePresent is true.");
                 //
                 if (dispersalProb > Model.Core.GenerateUniform())
+
                 {
-                    Site neighbor = site.GetNeighbor(new RelativeLocation(rRow * -1, rCol));
-                    if(rCol == 0)
-                        neighbor = site.GetNeighbor(new RelativeLocation(0, rRow));
-                    if (neighbor != null && neighbor.IsActive)
-                        if (Reproduction.MaturePresent(species, (ActiveSite) neighbor)) 
-                            return true;
-                }
+                    double distance = reloc.Weight;
+                    int rRow = (int)reloc.Location.Row;
+                    int rCol = (int)reloc.Location.Column;
+
+
+                    double EffD = (double)species.EffectiveSeedDist;
+                    double MaxD = (double)species.MaxSeedDist;
+
+                    if (distance > MaxD + ((double)Model.Core.CellLength / 2.0 * 1.414))
+                        established = false;  //Check no further
+
+                    double dispersalProb = GetDispersalProbability(EffD, MaxD, distance);
 
                 //DEBUGGING
                 //neighbor = site.GetNeighbor(new RelativeLocation(rRow * -1, rCol * -1));
@@ -130,9 +148,60 @@ namespace Landis.Library.Succession
                             return true;
                 }
 
-            }  // end foreach relativelocation
 
-            return false;
+                    //First check the Southeast quadrant:
+                    if (dispersalProb > Model.Core.GenerateUniform())
+                    {
+                        Site neighbor = site.GetNeighbor(reloc.Location);
+                        if (neighbor != null && neighbor.IsActive)
+                            if (Reproduction.MaturePresent(species, (ActiveSite)neighbor))
+                            {
+                                established = true;
+                                break;
+                            }
+                    }
+
+                    //Next, check all other quadrants:        
+                    if (dispersalProb > Model.Core.GenerateUniform())
+                    {
+                        Site neighbor = site.GetNeighbor(new RelativeLocation(rRow * -1, rCol));
+                        if (rCol == 0)
+                            neighbor = site.GetNeighbor(new RelativeLocation(0, rRow));
+                        if (neighbor != null && neighbor.IsActive)
+                            if (Reproduction.MaturePresent(species, (ActiveSite)neighbor))
+                            {
+                                established = true;
+                                break;
+                            }
+                    }
+
+                    if (dispersalProb > Model.Core.GenerateUniform())
+                    {
+                        Site neighbor = site.GetNeighbor(new RelativeLocation(rRow * -1, rCol * -1));
+                        if (neighbor != null && neighbor.IsActive)
+                            if (Reproduction.MaturePresent(species, (ActiveSite)neighbor))
+                            {
+                                established = true;
+                                break;
+                            }
+                    }
+
+                    if (dispersalProb > Model.Core.GenerateUniform())
+                    {
+                        Site neighbor = site.GetNeighbor(new RelativeLocation(rRow, rCol * -1));
+                        if (rCol == 0)
+                            neighbor = site.GetNeighbor(new RelativeLocation(0, rRow * -1));
+                        if (neighbor != null && neighbor.IsActive)
+                            if (Reproduction.MaturePresent(species, (ActiveSite)neighbor))
+                            {
+                                established = true;
+                                break;
+                            }
+                    }
+
+                }  // end foreach relativelocation
+            }
+         
         }
         
         private static double GetDispersalProbability(double EffD, double MaxD, double distance)

@@ -18,6 +18,9 @@ namespace Landis.Library.Succession
         public class SpeciesList
         {
             private BitArray bitArray;
+            
+            // JSF - Convert dictionary to float
+            private Dictionary<ISpecies, uint> plantDict;
 
             //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
@@ -34,10 +37,37 @@ namespace Landis.Library.Succession
 
             //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
+            public SpeciesList(IEnumerable<ISpecies> speciesList,
+                               ISpeciesDataset speciesDataset,
+                               Dictionary<ISpecies, uint> plantNum)
+            {
+                bitArray = new BitArray(speciesDataset.Count);
+                plantDict = new Dictionary<ISpecies, uint>();
+                if (speciesList != null)
+                {
+                    foreach (ISpecies species in speciesList)
+                    {
+                        bitArray.Set(species.Index, true);
+                        plantDict[species] = plantNum[species];
+                    }
+
+                }
+            }
+
+            //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
             internal BitArray AsBitArray
             {
                 get {
                     return bitArray;
+                }
+            }
+
+            internal Dictionary<ISpecies, uint> AsPlantDict
+            {
+                get
+                {
+                    return plantDict;
                 }
             }
         }
@@ -67,7 +97,17 @@ namespace Landis.Library.Succession
         void IPlanting.Schedule(SpeciesList speciesList,
                                 ActiveSite  site)
         {
+            PlantingList[site].Clear();
+            SelectedSpecies[site].SetAll(false);
             SelectedSpecies[site].Or(speciesList.AsBitArray);
+            if (speciesList.AsPlantDict != null)
+            {
+                foreach(var plant in speciesList.AsPlantDict)
+                {
+                    PlantingList[site].Add(plant.Key, plant.Value);
+                }
+            }
         }
+
     }
 }

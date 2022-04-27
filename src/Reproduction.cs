@@ -21,7 +21,7 @@ namespace Landis.Library.Succession
             /// A method to add new young cohort for a particular species at a
             /// site.
             /// </summary>
-            public delegate void AddNewCohort(ISpecies species, ActiveSite site, string reproductionType);
+            public delegate void AddNewCohort(ISpecies species, ActiveSite site, string reproductionType, double propBiomass = 1.0);
 
             //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
@@ -45,6 +45,33 @@ namespace Landis.Library.Succession
             /// A method for determining whether a mature cohort is present at a site for a given species.
             /// </summary>
             public delegate bool MaturePresent(ISpecies species, ActiveSite site);
+
+            /// <summary>
+            /// A method for determining the establishment probability at a site for a given species.
+            /// </summary>
+            public delegate double EstablishmentProbability(ISpecies species, ActiveSite site);
+
+            /// <summary>
+            /// A method for determining the mature biomass at a site for a given species.
+            /// </summary>
+            public delegate double MatureBiomass(ISpecies species, ActiveSite site);
+
+            /// <summary>
+            /// A method for determining the active biomass at a site for a given species.
+            /// </summary>
+            public delegate double ActiveBiomass(ISpecies species, ActiveSite site);
+
+            /// <summary>
+            /// A method for determining the foliage mass at a site for a given species.
+            /// </summary>
+            public delegate double MatureFolMass(ISpecies species, ActiveSite site);
+
+            /// <summary>
+            /// A method for determining the seeds produced at a site for a given species using the Density Succession method.
+            /// </summary>
+            public delegate int DensitySeeds(ISpecies species, ActiveSite site);
+
+
         }
 
         //---------------------------------------------------------------------
@@ -63,6 +90,11 @@ namespace Landis.Library.Succession
         private static Delegates.Establish estbMethod = ReproductionDefaults.Establish;
         private static Delegates.PlantingEstablish plantEstbMethod = ReproductionDefaults.PlantingEstablish;
         private static Delegates.MaturePresent isMaturePresentMethod;
+        public static Delegates.EstablishmentProbability estabProb = ReproductionDefaults.EstablishmentProbability;
+        public static Delegates.MatureBiomass matureBiomass = ReproductionDefaults.MatureBiomass;
+        public static Delegates.ActiveBiomass activeBiomass = ReproductionDefaults.ActiveBiomass;
+        public static Delegates.MatureFolMass folMass = ReproductionDefaults.MatureFolMass;
+        public static Delegates.DensitySeeds densitySeeds = ReproductionDefaults.DensitySeeds;
 
         private static readonly ILog log = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
         private static readonly bool isDebugEnabled = log.IsDebugEnabled;
@@ -147,6 +179,79 @@ namespace Landis.Library.Succession
             {
                 Require.ArgumentNotNull(value);
                 isMaturePresentMethod = value;
+            }
+        }
+
+        //---------------------------------------------------------------------
+
+        public static Delegates.EstablishmentProbability EstablishmentProbability
+        {
+            get
+            {
+                return estabProb;
+            }
+
+            set
+            {
+                Require.ArgumentNotNull(value);
+                estabProb = value;
+            }
+        }
+
+        //---------------------------------------------------------------------
+        public static Delegates.MatureBiomass MatureBiomass
+        {
+            get
+            {
+                return matureBiomass;
+            }
+
+            set
+            {
+                Require.ArgumentNotNull(value);
+                matureBiomass = value;
+            }
+        }
+        //---------------------------------------------------------------------
+        public static Delegates.ActiveBiomass ActiveBiomass
+        {
+            get
+            {
+                return activeBiomass;
+            }
+
+            set
+            {
+                Require.ArgumentNotNull(value);
+                activeBiomass = value;
+            }
+        }
+        //---------------------------------------------------------------------
+        public static Delegates.MatureFolMass MatureFolMass
+        {
+            get
+            {
+                return folMass;
+            }
+
+            set
+            {
+                Require.ArgumentNotNull(value);
+                folMass = value;
+            }
+        }        
+        //---------------------------------------------------------------------
+        public static Delegates.DensitySeeds DensitySeeds
+        {
+            get
+            {
+                return densitySeeds;
+            }
+
+            set
+            {
+                Require.ArgumentNotNull(value);
+                densitySeeds = value;
             }
         }
         //---------------------------------------------------------------------
@@ -249,14 +354,13 @@ namespace Landis.Library.Succession
         //---------------------------------------------------------------------
 
         /// <summary>
-        /// Prevents establishment due to land use change.
+        /// Schedules a list of species to be planted at a site.
         /// </summary>
         public static void PreventEstablishment(ActiveSite site)
         {
             noEstablish[site] = true;
         }
         //---------------------------------------------------------------------
-
         /// <summary>
         /// Re-enables establishment at a site for a list of species
         /// </summary>
@@ -298,7 +402,8 @@ namespace Landis.Library.Succession
                         ISpecies species = speciesDataset[index];
                         sufficientLight = SufficientResources(species, site);
                         if (sufficientLight && Establish(species, site)) {
-                            AddNewCohort(species, site, "serotiny");
+                            // Temp set propBiomass to 1.0
+                            AddNewCohort(species, site,"serotiny", 1.0);
                             serotinyOccurred = true;
                             if (isDebugEnabled)
                                 log.DebugFormat("site {0}: {1} post-fire regenerated",
@@ -324,7 +429,8 @@ namespace Landis.Library.Succession
                         sufficientLight = SufficientResources(species, site);
                         if (sufficientLight &&
                                 (Model.Core.GenerateUniform() < species.VegReprodProb)) {
-                            AddNewCohort(species, site, "resprout");
+                            // Temp set propBiomass to 1.0
+                            AddNewCohort(species, site, "resprout",1.0);
                             speciesResprouted = true;
                             if (isDebugEnabled)
                                 log.DebugFormat("site {0}: {1} resprouted",
@@ -342,8 +448,11 @@ namespace Landis.Library.Succession
             }
             resprout[site].SetAll(false);
 
+            planting.NotTriedAt(site);
             if (! plantingOccurred && ! serotinyOccurred && ! speciesResprouted)
                 seeding.Do(site);
+
+            
         }
 
 
