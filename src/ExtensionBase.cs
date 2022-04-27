@@ -1,10 +1,14 @@
 using Landis.Utilities;
 using Landis.Core;
+using Landis.SpatialModeling;
 
 using log4net;
 using System;
 using System.Collections.Generic;
-using Landis.SpatialModeling;
+using System.Diagnostics;
+using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace Landis.Library.Succession
 {
@@ -17,6 +21,7 @@ namespace Landis.Library.Succession
         private DisturbedSiteEnumerator disturbedSites;
         public bool ShowProgress;
         private uint? prevSiteDataIndex;
+        private static readonly object threadLock = new object();
 
         //---------------------------------------------------------------------
 
@@ -37,6 +42,7 @@ namespace Landis.Library.Succession
         public ExtensionBase(string name)
             : base(name)
         {
+            this.ThreadCount = 1;
             this.ShowProgress = true;
         }
 
@@ -52,6 +58,19 @@ namespace Landis.Library.Succession
             {
                 return SiteVars.Disturbed;
             }
+        }
+
+        //---------------------------------------------------------------------
+
+        /// <summary>
+        /// Number of threads that an extension has been optimized to use to split up work.
+        /// This number will be set by the inheriting succession extension if it has been
+        /// optimized
+        /// </summary>
+        protected int ThreadCount
+        {
+            get;
+            set;
         }
 
         //---------------------------------------------------------------------
@@ -141,6 +160,7 @@ namespace Landis.Library.Succession
                                bool isSuccessionTimestep)
         {
             int? succTimestep = null;
+            Stopwatch watch = new Stopwatch();
             if (isSuccessionTimestep)
             {
                 succTimestep = Timestep;
@@ -158,16 +178,50 @@ namespace Landis.Library.Succession
                 prevSiteDataIndex = null;
                 progressBar = Model.Core.UI.CreateProgressMeter(Model.Core.Landscape.ActiveSiteCount); // NewProgressBar();
             }
+            watch.Start();
 
-            foreach (ActiveSite site in sites)
+            if (this.ThreadCount != 1)
             {
-                ushort deltaTime = (ushort)(Model.Core.CurrentTime - SiteVars.TimeOfLast[site]);
-                AgeCohorts(site, deltaTime, succTimestep);
-                SiteVars.TimeOfLast[site] = Model.Core.CurrentTime;
+                //Thread worker = new Thread(() => AgeCohorts(site, deltaTime, succTimestep));
+                var sitesArray = sites.ToArray(); 
 
-                if (ShowProgress)
-                    Update(progressBar, site.DataIndex);
+                // Parallelize the calculations involved in ageing/growing cohorts to decrease process time
+                Parallel.For(0, sitesArray.Count(), new ParallelOptions
+                {
+                    MaxDegreeOfParallelism = this.ThreadCount
+                },
+                    i =>
+                    {
+                        ushort deltaTime = (ushort)(Model.Core.CurrentTime - SiteVars.TimeOfLast[sitesArray[i]]);
+                        AgeCohorts(sitesArray[i], deltaTime, succTimestep);
+                        SiteVars.TimeOfLast[sitesArray[i]] = Model.Core.CurrentTime;
+
+                        lock (threadLock)
+                        {
+                            if (ShowProgress)
+                                Update(progressBar, sitesArray[i].DataIndex, true);
+                        }
+                    });
+                
             }
+            else
+            {
+                foreach (ActiveSite site in sites)
+                {
+                    ushort deltaTime = (ushort)(Model.Core.CurrentTime - SiteVars.TimeOfLast[site]);
+                    AgeCohorts(site, deltaTime, succTimestep);
+                    SiteVars.TimeOfLast[site] = Model.Core.CurrentTime;
+
+                    if (ShowProgress)
+                        Update(progressBar, site.DataIndex);
+                }
+            }
+
+            watch.Stop();
+            //this.totalTime += watch.Elapsed.TotalSeconds;
+            //this.runs += 1;
+            watch.Reset();
+
             if (ShowProgress)
                 CleanUp(progressBar);
         }
@@ -277,11 +331,20 @@ namespace Landis.Library.Succession
         //---------------------------------------------------------------------
 
         private void Update(ProgressBar progressBar,
-                            uint currentSiteDataIndex)
+                            uint currentSiteDataIndex,
+                            bool parallel = false)
         {
-            uint increment = (uint)(prevSiteDataIndex.HasValue
+            uint increment = 0;
+            if (!parallel)
+            {
+                increment = (uint)(prevSiteDataIndex.HasValue
                                         ? (currentSiteDataIndex - prevSiteDataIndex.Value)
                                         : currentSiteDataIndex);
+            }
+            else
+            {
+                increment = 1;
+            }
             progressBar.IncrementWorkDone(increment);
             prevSiteDataIndex = currentSiteDataIndex;
         }

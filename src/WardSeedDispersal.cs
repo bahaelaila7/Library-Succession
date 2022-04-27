@@ -21,8 +21,16 @@ namespace Landis.Library.Succession
         public static void Algorithm(ISpecies species,
                                         ActiveSite site, out bool established, out double seedlingProportion)
         {
+
             established = false;
             seedlingProportion = 1;
+
+            // DEBUGGING
+            //if (Reproduction.MaturePresent(species, site))
+            //    Model.Core.UI.WriteLine("MaturePresent is true.");
+            //
+
+
             if (species.EffectiveSeedDist == Universal)
             {
                 UniversalDispersal.Algorithm(species, site, out established, out seedlingProportion);
@@ -53,15 +61,54 @@ namespace Landis.Library.Succession
 
             else
             {
+
                 if (isDebugEnabled)
                     log.DebugFormat("site {0}: search neighbors for {1}",
                                     site.Location, species.Name);
 
                 foreach (RelativeLocationWeighted reloc in Seeding.MaxSeedQuarterNeighborhood)
+
+                double distance = reloc.Weight;
+                int rRow = (int) reloc.Location.Row;
+                int rCol = (int) reloc.Location.Column;
+                
+                double EffD = (double) species.EffectiveSeedDist;
+                double MaxD = (double) species.MaxSeedDist;
+                    
+                if(distance > MaxD + ((double) Model.Core.CellLength / 2.0 * 1.414)) 
+                    return false;  //Check no further
+
+                double dispersalProb = GetDispersalProbability(EffD, MaxD, distance);
+
+                //First check the Southeast quadrant:
+                // DEBUGGING
+                //Site neighbor = site.GetNeighbor(reloc.Location);
+                //if (neighbor != null && neighbor.IsActive)
+                //    if (Reproduction.MaturePresent(species, (ActiveSite)neighbor))
+                //    Model.Core.UI.WriteLine("MaturePresent is true.");
+                //
+                if (dispersalProb > Model.Core.GenerateUniform())
+                {
+                    Site neighbor = site.GetNeighbor(reloc.Location);
+                    if (neighbor != null && neighbor.IsActive)
+                        if (Reproduction.MaturePresent(species, (ActiveSite) neighbor)) 
+                            return true;
+                }
+
+                //Next, check all other quadrants:
+                //DEBUGGING
+                //neighbor = site.GetNeighbor(new RelativeLocation(rRow * -1, rCol));
+                //if (neighbor != null && neighbor.IsActive)
+                //    if (Reproduction.MaturePresent(species, (ActiveSite)neighbor))
+                //    Model.Core.UI.WriteLine("MaturePresent is true.");
+                //
+                if (dispersalProb > Model.Core.GenerateUniform())
+
                 {
                     double distance = reloc.Weight;
                     int rRow = (int)reloc.Location.Row;
                     int rCol = (int)reloc.Location.Column;
+
 
                     double EffD = (double)species.EffectiveSeedDist;
                     double MaxD = (double)species.MaxSeedDist;
@@ -70,6 +117,37 @@ namespace Landis.Library.Succession
                         established = false;  //Check no further
 
                     double dispersalProb = GetDispersalProbability(EffD, MaxD, distance);
+
+                //DEBUGGING
+                //neighbor = site.GetNeighbor(new RelativeLocation(rRow * -1, rCol * -1));
+                //if (neighbor != null && neighbor.IsActive)
+                //    if (Reproduction.MaturePresent(species, (ActiveSite)neighbor))
+                //    Model.Core.UI.WriteLine("MaturePresent is true.");
+                //
+                if (dispersalProb > Model.Core.GenerateUniform())
+                {
+                    Site neighbor = site.GetNeighbor(new RelativeLocation(rRow * -1, rCol * -1));
+                    if (neighbor != null && neighbor.IsActive)
+                        if (Reproduction.MaturePresent(species, (ActiveSite) neighbor)) 
+                            return true;
+                 }
+
+                //DEBUGGING
+                //neighbor = site.GetNeighbor(new RelativeLocation(rRow, rCol * -1));
+                //if (neighbor != null && neighbor.IsActive)
+                //    if (Reproduction.MaturePresent(species, (ActiveSite)neighbor))
+                //    Model.Core.UI.WriteLine("MaturePresent is true.");
+                //
+                if (dispersalProb > Model.Core.GenerateUniform())
+                {
+                    Site neighbor = site.GetNeighbor(new RelativeLocation(rRow, rCol * -1));
+                    if(rCol == 0)
+                        neighbor = site.GetNeighbor(new RelativeLocation(0, rRow * -1));
+                    if (neighbor != null && neighbor.IsActive)
+                        if (Reproduction.MaturePresent(species, (ActiveSite) neighbor)) 
+                            return true;
+                }
+
 
                     //First check the Southeast quadrant:
                     if (dispersalProb > Model.Core.GenerateUniform())
