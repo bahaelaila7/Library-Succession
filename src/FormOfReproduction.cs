@@ -24,7 +24,7 @@ namespace Landis.Library.Succession
         //---------------------------------------------------------------------
 
         private ISiteVar<BitArray> selectedSpecies;
-        private ISiteVar<Dictionary<ISpecies, uint>> plantingList;
+        private ISiteVar<Dictionary<ISpecies, double>> plantingList;
 
         //---------------------------------------------------------------------
 
@@ -45,7 +45,7 @@ namespace Landis.Library.Succession
         /// The species that have been selected for planting
         /// at each active site.
         /// </summary>
-        public ISiteVar<Dictionary<ISpecies, uint>> PlantingList
+        public ISiteVar<Dictionary<ISpecies, double>> PlantingList
         {
             get
             {
@@ -71,10 +71,10 @@ namespace Landis.Library.Succession
         {
             int speciesCount = speciesDataset.Count;
             selectedSpecies = Model.Core.Landscape.NewSiteVar<BitArray>();
-            plantingList = Model.Core.Landscape.NewSiteVar<Dictionary<ISpecies, uint>>();
+            plantingList = Model.Core.Landscape.NewSiteVar<Dictionary<ISpecies, double>>();
             foreach (ActiveSite site in Model.Core.Landscape.ActiveSites) {
                 selectedSpecies[site] = new BitArray(speciesCount);
-                plantingList[site] = new Dictionary<ISpecies, uint>();
+                plantingList[site] = new Dictionary<ISpecies, double>();
             }
         }
 
@@ -92,14 +92,20 @@ namespace Landis.Library.Succession
         {
             bool success = false;
             BitArray selectedSpeciesAtSite = selectedSpecies[site];
-            Dictionary<ISpecies, uint> plantingListAtSite = plantingList[site];
+            Dictionary<ISpecies, double> plantingListAtSite = plantingList[site];
 
             for (int index = 0; index < speciesDataset.Count; ++index) {
                 if (selectedSpeciesAtSite.Get(index)) {
                     ISpecies species = speciesDataset[index];
                     if (PreconditionsSatisfied(species, site)) {
-                        // Temp set propBiomass to 1.0
-                        Reproduction.AddNewCohort(species, site,"plant", plantingListAtSite[species]);
+                        if (plantingListAtSite.ContainsKey(species))
+                        {
+                            Reproduction.AddNewCohort(species, site, "plant", plantingListAtSite[species]);                            
+                        }
+                        else
+                        {
+                            Reproduction.AddNewCohort(species, site, "plant");
+                        }
                         success = true;
                     }
                 }

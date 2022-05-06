@@ -55,7 +55,7 @@
       <HintPath>..\..\..\Support-Library-Dlls-v7\Landis.Library.Cohorts-v2.dll</HintPath>
     </Reference>
     <Reference Include="Seed_Dispersal">
-      <HintPath>C:\Users\jacobfraser\source\repos\Core-Model-v7\Tool-Console\src\bin\extensions\Seed_Dispersal.dll</HintPath>
+      <HintPath>..\..\..\brmiranda\Core-Model-v7\Tool-Console\src\bin\extensions\Seed_Dispersal.dll</HintPath>
     </Reference>
   </ItemGroup>
   
