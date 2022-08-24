@@ -373,7 +373,7 @@ namespace Landis.Library.Succession
         /// <summary>
         /// Does the appropriate forms of reproduction at a site.
         /// </summary>
-        public static void Reproduce(ActiveSite site)
+        public static void Reproduce(ActiveSite site, ThreadSafeRandom randomGen = null)
         {
             if(noEstablish[site])
                 return;
@@ -428,7 +428,7 @@ namespace Landis.Library.Succession
                         ISpecies species = speciesDataset[index];
                         sufficientLight = SufficientResources(species, site);
                         if (sufficientLight &&
-                                (Model.Core.GenerateUniform() < species.VegReprodProb)) {
+                                ((randomGen == null ? Model.Core.NextDouble() : randomGen.NextDouble()) < species.VegReprodProb)) {
                             // Temp set propBiomass to 1.0
                             AddNewCohort(species, site, "resprout",1.0);
                             speciesResprouted = true;
@@ -450,7 +450,7 @@ namespace Landis.Library.Succession
 
             planting.NotTriedAt(site);
             if (! plantingOccurred && ! serotinyOccurred && ! speciesResprouted)
-                seeding.Do(site);
+                seeding.Do(site, randomGen);
 
             
         }

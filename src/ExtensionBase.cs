@@ -182,7 +182,6 @@ namespace Landis.Library.Succession
 
             if (this.ThreadCount != 1)
             {
-                //Thread worker = new Thread(() => AgeCohorts(site, deltaTime, succTimestep));
                 var sitesArray = sites.ToArray(); 
 
                 // Parallelize the calculations involved in ageing/growing cohorts to decrease process time
@@ -312,15 +311,42 @@ namespace Landis.Library.Succession
                 progressBar = Model.Core.UI.CreateProgressMeter(Model.Core.Landscape.ActiveSiteCount); // NewProgressBar();
             }
 
-            foreach (ActiveSite site in sites)
+            if (this.ThreadCount != 1)
             {
-                Reproduction.Reproduce(site);
+                var sitesArray = sites.ToArray();
 
-                if (ShowProgress)
-                    Update(progressBar, site.DataIndex);
+                // Parallelize the calculations involved in reproduction to decrease process time
+                Parallel.For(0, sitesArray.Count(), new ParallelOptions
+                {
+                    MaxDegreeOfParallelism = this.ThreadCount
+                },
+                    i =>
+                    {
+                        ThreadSafeRandom randomGen = new ThreadSafeRandom();
+                        ushort deltaTime = (ushort)(Model.Core.CurrentTime - SiteVars.TimeOfLast[sitesArray[i]]);
+                        Reproduction.Reproduce(sitesArray[i], randomGen);
+                        SiteVars.TimeOfLast[sitesArray[i]] = Model.Core.CurrentTime;
+
+                        lock (threadLock)
+                        {
+                            if (ShowProgress)
+                                Update(progressBar, sitesArray[i].DataIndex, true);
+                        }
+                    });
+
             }
-            if (ShowProgress)
-                CleanUp(progressBar);
+            else
+            {
+                foreach (ActiveSite site in sites)
+                {
+                    Reproduction.Reproduce(site);
+
+                    if (ShowProgress)
+                        Update(progressBar, site.DataIndex);
+                }
+                if (ShowProgress)
+                    CleanUp(progressBar);
+            }
 
             logger.Debug(string.Format("{0:G}", DateTime.Now));
             for (int generation = 0; generation <= maxGeneration; generation++)

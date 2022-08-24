@@ -58,7 +58,7 @@ namespace Landis.Library.Succession.DensitySeeding
         /// <param name="site">Site that may be seeded.</param>
         /// <returns>true if the species seeds the site.</returns>
         public void DoesSpeciesSeedSite(ISpecies species,
-                                        ActiveSite site, out bool established, out double seedlingProportion)
+                                        ActiveSite site, out bool established, out double seedlingProportion, ThreadSafeRandom randomGen = null)
         {
             // Is this the first site for the current timestep?
             if (Model.Core.CurrentTime != timeAtLastCall)

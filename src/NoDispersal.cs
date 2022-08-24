@@ -10,7 +10,7 @@ namespace Landis.Library.Succession
     public static class NoDispersal
     {
         public static void Algorithm(ISpecies species,
-                                        ActiveSite site, out bool established, out double seedlingProportion)
+                                        ActiveSite site, out bool established, out double seedlingProportion, ThreadSafeRandom randomGen = null)
         {
             established = Reproduction.SufficientResources(species, site) &&
                    Reproduction.Establish(species, site) &&

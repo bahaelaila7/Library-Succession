@@ -25,7 +25,7 @@ namespace Landis.Library.Succession
 
         //---------------------------------------------------------------------
 
-        public void Do(ActiveSite site)
+        public void Do(ActiveSite site, ThreadSafeRandom randomGen = null)
         {
             // Accumulate seedling density if using demographic seeding
             //if (seedingAlgorithm.GetType() == typeof(DemographicSeeding.Algorithm))
@@ -53,7 +53,7 @@ namespace Landis.Library.Succession
                     ISpecies species = Model.Core.Species[i];
                     bool established;
                     double seedlingProportion = 1.0 ;
-                    seedingAlgorithm(species, site, out established, out seedlingProportion);
+                    seedingAlgorithm(species, site, out established, out seedlingProportion, randomGen);
                     if (established)
                     {
                         Reproduction.AddNewCohort(species, site,"seed", seedlingProportion);

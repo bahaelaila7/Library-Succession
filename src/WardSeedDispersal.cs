@@ -19,7 +19,7 @@ namespace Landis.Library.Succession
         //---------------------------------------------------------------------
 
         public static void Algorithm(ISpecies species,
-                                        ActiveSite site, out bool established, out double seedlingProportion)
+                                        ActiveSite site, out bool established, out double seedlingProportion, ThreadSafeRandom randomGen = null)
         {
             established = false;
             seedlingProportion = 1;
@@ -70,9 +70,10 @@ namespace Landis.Library.Succession
                         established = false;  //Check no further
 
                     double dispersalProb = GetDispersalProbability(EffD, MaxD, distance);
+                    var uniformProb = randomGen == null ? Model.Core.NextDouble() : randomGen.NextDouble();
 
                     //First check the Southeast quadrant:
-                    if (dispersalProb > Model.Core.GenerateUniform())
+                    if (dispersalProb > uniformProb)
                     {
                         Site neighbor = site.GetNeighbor(reloc.Location);
                         if (neighbor != null && neighbor.IsActive)
@@ -84,7 +85,7 @@ namespace Landis.Library.Succession
                     }
 
                     //Next, check all other quadrants:        
-                    if (dispersalProb > Model.Core.GenerateUniform())
+                    if (dispersalProb > uniformProb)
                     {
                         Site neighbor = site.GetNeighbor(new RelativeLocation(rRow * -1, rCol));
                         if (rCol == 0)
@@ -97,7 +98,7 @@ namespace Landis.Library.Succession
                             }
                     }
 
-                    if (dispersalProb > Model.Core.GenerateUniform())
+                    if (dispersalProb > uniformProb)
                     {
                         Site neighbor = site.GetNeighbor(new RelativeLocation(rRow * -1, rCol * -1));
                         if (neighbor != null && neighbor.IsActive)
@@ -108,7 +109,7 @@ namespace Landis.Library.Succession
                             }
                     }
 
-                    if (dispersalProb > Model.Core.GenerateUniform())
+                    if (dispersalProb > uniformProb)
                     {
                         Site neighbor = site.GetNeighbor(new RelativeLocation(rRow, rCol * -1));
                         if (rCol == 0)
