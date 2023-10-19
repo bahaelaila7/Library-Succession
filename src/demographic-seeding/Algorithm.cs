@@ -77,7 +77,7 @@ namespace Landis.Library.Succession.DemographicSeeding
             // Initialize some species parameters from the core.
             foreach (ISpecies species in Model.Core.Species)
             {
-                seedingData.all_species[species.Index].shade_tolerance = species.ShadeTolerance;
+                //seedingData.all_species[species.Index].shade_tolerance = species.ShadeTolerance;
                 seedingData.all_species[species.Index].reproductive_age = species.Maturity;
                 seedingData.all_species[species.Index].reproductive_age_steps = species.Maturity / successionTimestep;
             }
@@ -484,7 +484,7 @@ namespace Landis.Library.Succession.DemographicSeeding
                     {
                         int x = site.Location.Column - 1;
                         int y = site.Location.Row - 1;
-                        pixel.Band0.Value = getSpeciesValueAt(x, y, s, yearInTimestep);
+                        pixel.MapCode.Value = getSpeciesValueAt(x, y, s, yearInTimestep);
                         outputRaster.WriteBufferPixel();
                     }
                 }

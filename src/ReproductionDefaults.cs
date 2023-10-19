@@ -17,8 +17,7 @@ namespace Landis.Library.Succession
         {
             byte siteShade = SiteVars.Shade[site];
             bool sufficientLight;
-            sufficientLight = (species.ShadeTolerance <= 4 && species.ShadeTolerance > siteShade) ||
-                   (species.ShadeTolerance == 5 && siteShade > 1);
+            sufficientLight = (siteShade > 1);
             //  pg 14, Model description, this ----------------^ may be 2?
             return sufficientLight;
         }

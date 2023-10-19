@@ -6,7 +6,7 @@ using System.Collections;
 using System.Reflection;
 using Landis.SpatialModeling;
 
-using Landis.Library.AgeOnlyCohorts;
+using Landis.Library.UniversalCohorts;
 
 namespace Landis.Library.Succession
 {
@@ -297,7 +297,7 @@ namespace Landis.Library.Succession
         public static void CheckForResprouting(ICohort cohort, ActiveSite site)
         {
             ISpecies species = cohort.Species;
-            if (species.MinSproutAge <= cohort.Age && cohort.Age <= species.MaxSproutAge)
+            if (species.MinSproutAge <= cohort.Data.Age && cohort.Data.Age <= species.MaxSproutAge)
                 resprout[site].Set(species.Index, true);
         }
 
@@ -330,7 +330,7 @@ namespace Landis.Library.Succession
                     break;
 
                 case PostFireRegeneration.Serotiny:
-                    if (cohort.Age >= species.Maturity)
+                    if (cohort.Data.Age >= species.Maturity)
                         serotiny[site].Set(species.Index, true);
                     break;
 
