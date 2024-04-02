@@ -25,17 +25,44 @@ namespace Landis.Library.Succession
 
         //---------------------------------------------------------------------
 
-        public void Do(ActiveSite site)
+        public void Do(ActiveSite site, ThreadSafeRandom randomGen = null)
         {
-            for (int i = 0; i < Model.Core.Species.Count; i++) {
-                ISpecies species = Model.Core.Species[i];
-                if (seedingAlgorithm(species, site)) {
-                    Reproduction.AddNewCohort(species, site, "seed");
-                    if (isDebugEnabled)
-                        log.DebugFormat("site {0}: seeded {1}",
-                                        site.Location, species.Name);
+            // Accumulate seedling density if using demographic seeding
+            //if (seedingAlgorithm.GetType() == typeof(DemographicSeeding.Algorithm))
+            //{
+            //    for (int i = 0; i < Model.Core.Species.Count; i++)
+            //    {
+            //        ISpecies species = Model.Core.Species[i];
+            //        bool established;
+            //        double seedlingProportion = 1.0;
+            //        seedingAlgorithm(species, site, out established, out seedlingProportion);
+            //            if(established)
+            //        {
+            //            // Temp set propBiomass to 1.0
+            //            Reproduction.AddNewCohort(species, site, seedlingProportion);
+            //            if (isDebugEnabled)
+            //                log.DebugFormat("site {0}: seeded {1}",
+            //                                site.Location, species.Name);
+            //        }
+            //    }
+            //}
+            //else
+            //{
+                for (int i = 0; i < Model.Core.Species.Count; i++)
+                {
+                    ISpecies species = Model.Core.Species[i];
+                    bool established;
+                    double seedlingProportion = 1.0 ;
+                    seedingAlgorithm(species, site, out established, out seedlingProportion, randomGen);
+                    if (established)
+                    {
+                        Reproduction.AddNewCohort(species, site,"seed", seedlingProportion);
+                        if (isDebugEnabled)
+                            log.DebugFormat("site {0}: seeded {1}",
+                                            site.Location, species.Name);
+                    }
                 }
-            }
+            //}
         }
 
         //---------------------------------------------------------------------

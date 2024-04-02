@@ -9,14 +9,14 @@ namespace Landis.Library.Succession
     /// </summary>
     public static class NoDispersal
     {
-        public static bool Algorithm(ISpecies   species,
-                                     ActiveSite site)
+        public static void Algorithm(ISpecies species,
+                                        ActiveSite site, out bool established, out double seedlingProportion, ThreadSafeRandom randomGen = null)
         {
-            return Reproduction.SufficientResources(species, site) &&
+            established = Reproduction.SufficientResources(species, site) &&
                    Reproduction.Establish(species, site) &&
                    Reproduction.MaturePresent(species, site);
                    //SiteVars.Cohorts[site].IsMaturePresent(species);
-                    
+            seedlingProportion = 0;
         }
     }
 }

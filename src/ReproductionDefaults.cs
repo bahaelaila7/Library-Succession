@@ -17,8 +17,7 @@ namespace Landis.Library.Succession
         {
             byte siteShade = SiteVars.Shade[site];
             bool sufficientLight;
-            sufficientLight = (species.ShadeTolerance <= 4 && species.ShadeTolerance > siteShade) ||
-                   (species.ShadeTolerance == 5 && siteShade > 1);
+            sufficientLight = (siteShade > 1);
             //  pg 14, Model description, this ----------------^ may be 2?
             return sufficientLight;
         }
@@ -45,6 +44,60 @@ namespace Landis.Library.Succession
             double establishProbability = 1.0;
 
             return Model.Core.GenerateUniform() < establishProbability;
+        }
+
+        //---------------------------------------------------------------------
+        /// <summary>
+        /// Determines if a species can establish on a site.
+        /// </summary>
+        public static double EstablishmentProbability(ISpecies species, ActiveSite site)
+        {
+            return 1.0;
+
+        }
+
+        //---------------------------------------------------------------------
+        /// <summary>
+        /// The mature biomass on a site.
+        /// </summary>
+        public static double MatureBiomass(ISpecies species, ActiveSite site)
+        {
+            double matureBiomass = 0;
+
+            return matureBiomass;
+        }
+
+        //---------------------------------------------------------------------
+        /// <summary>
+        /// The active biomass on a site.
+        /// </summary>
+        public static double ActiveBiomass(ISpecies species, ActiveSite site)
+        {
+            double activeBiomass = 0;
+
+            return activeBiomass;
+        }
+
+        //---------------------------------------------------------------------
+        /// <summary>
+        /// The mature foliage mass on a site.
+        /// </summary>
+        public static double MatureFolMass(ISpecies species, ActiveSite site)
+        {
+            double folMass = 0;
+
+            return folMass;
+        }
+
+        //---------------------------------------------------------------------
+        /// <summary>
+        /// The number of seeds produced on a site using the Density Succession method.
+        /// </summary>
+        public static int DensitySeeds(ISpecies species, ActiveSite site)
+        {
+            int densitySeeds = 0;
+
+            return densitySeeds;
         }
 
         //---------------------------------------------------------------------

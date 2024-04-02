@@ -1,5 +1,5 @@
 
-using Landis.Library.AgeOnlyCohorts;
+using Landis.Library.UniversalCohorts;
 using Landis.SpatialModeling;
 
 namespace Landis.Library.Succession
