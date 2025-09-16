@@ -42,10 +42,20 @@
   <ItemGroup>
     <!--<PackageReference Include="Accord" Version="3.8.0" />-->
     <PackageReference Include="Accord.Statistics" Version="3.8.0" />
+    <PackageReference Include="MathNet.Numerics" Version="4.15.0" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\Library-Core\src\Core\Landis.Core.csproj" />
+    <ProjectReference Include="..\..\Library-Spatial\src\api\Landis_SpatialModeling.csproj" />
+    <ProjectReference Include="..\..\Library-Utilities\src\Landis.Utilities.csproj" />
+    <ProjectReference Include="..\..\Library-Universal-Cohort\universal-cohort.csproj" />
+  </ItemGroup>
+
+ <!--
+  <ItemGroup>
     <PackageReference Include="Landis.Core" Version="3.0.1" />
     <PackageReference Include="Landis.SpatialModeling" Version="2.0.1" />
     <PackageReference Include="Landis.Utilities" Version="2.0.0" />
-    <PackageReference Include="MathNet.Numerics" Version="4.15.0" />
   </ItemGroup>
 
   <ItemGroup>
@@ -56,5 +66,6 @@
       <HintPath>lib\Seed_Dispersal.dll</HintPath>
     </Reference>
   </ItemGroup>
+ -->
   
 </Project>
